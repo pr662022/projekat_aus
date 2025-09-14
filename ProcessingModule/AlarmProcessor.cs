@@ -6,7 +6,7 @@ namespace ProcessingModule
     /// Class containing logic for alarm processing.
     /// </summary>
     public class AlarmProcessor
-	{
+    {
         /// <summary>
         /// Processes the alarm for analog point.
         /// </summary>
@@ -14,9 +14,21 @@ namespace ProcessingModule
         /// <param name="configItem">The configuration item.</param>
         /// <returns>The alarm indication.</returns>
 		public AlarmType GetAlarmForAnalogPoint(double eguValue, IConfigItem configItem)
-		{
-			return AlarmType.NO_ALARM;
-		}
+        {
+            if (configItem.HighLimit < eguValue)//ako pozicija predja hight value ...
+            {
+                return AlarmType.HIGH_ALARM;
+            }
+            else if (configItem.LowLimit > eguValue)//low
+            {
+                return AlarmType.LOW_ALARM;
+            }
+            else if (configItem.EGU_Max < eguValue || configItem.EGU_Min > eguValue)
+            {
+                return AlarmType.REASONABILITY_FAILURE;
+            }
+            return AlarmType.NO_ALARM;
+        }
 
         /// <summary>
         /// Processes the alarm for digital point.
@@ -25,8 +37,9 @@ namespace ProcessingModule
         /// <param name="configItem">The configuration item.</param>
         /// <returns>The alarm indication.</returns>
 		public AlarmType GetAlarmForDigitalPoint(ushort state, IConfigItem configItem)
-		{
+        {
+           
             return AlarmType.NO_ALARM;
         }
-	}
+    }
 }
