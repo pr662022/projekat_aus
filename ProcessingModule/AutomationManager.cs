@@ -1,5 +1,6 @@
 ﻿using Common;
 using System;
+using System.Collections.Generic;
 using System.Threading;
 
 namespace ProcessingModule
@@ -60,9 +61,35 @@ namespace ProcessingModule
 
 		private void AutomationWorker_DoWork()
 		{
-			//while (!disposedValue)
-			//{
-			//}
+			EGUConverter conv = new EGUConverter();
+			while (!disposedValue)
+			{
+				List<PointIdentifier> pointList = new List<PointIdentifier>();
+				pointList.Add(new PointIdentifier(PointType.ANALOG_OUTPUT, 1000));
+				pointList.Add(new PointIdentifier(PointType.DIGITAL_INPUT, 2000));
+				pointList.Add(new PointIdentifier(PointType.DIGITAL_OUTPUT, 3000));
+				pointList.Add(new PointIdentifier(PointType.DIGITAL_OUTPUT, 3001));
+
+				List<IPoint> points = storage.GetPoints(pointList);
+				ushort value = points[0].RawValue;
+
+                if (value <= points[0].ConfigItem.LowLimit)
+                {
+                    
+                    processingManager.ExecuteWriteCommand(points[1].ConfigItem,
+                        configuration.GetTransactionId(), configuration.UnitAddress, 3000, 0);
+                }
+
+                if (value >= points[0].ConfigItem.HighLimit)
+                {
+                    
+                    processingManager.ExecuteWriteCommand(points[2].ConfigItem,
+                        configuration.GetTransactionId(), configuration.UnitAddress, 3001, 0);
+                }
+
+                automationTrigger.WaitOne(delayBetweenCommands);
+
+            }
 		}
 
 		#region IDisposable Support
